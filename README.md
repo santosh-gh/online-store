@@ -43,7 +43,16 @@ The application has the following services:
 
   ## 2. Create the microservices/applications 
 
-  ## 3  Create Docker files
+        RabbitMQ: Message broker, provides the messaging backbone. Should run first.
+
+        Order-service: Consumes/Produces messages via RabbitMQ.Connects to RabbitMQ for handling order messages.
+
+        Product-service: Provides product-related APIs/data.
+
+        Store-front: frontend gateway that depends on both product and order services. This is the entry point for users.
+        It calls product-service (for catalog) and order-service (for placing orders).
+
+  ## 3  Create Docker files 
 
   ## 4. Build and Run the images
 
