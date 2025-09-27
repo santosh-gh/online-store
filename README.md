@@ -45,16 +45,53 @@ The application has the following services:
 
         RabbitMQ: Message broker, provides the messaging backbone. Should run first.
 
-        Order-service: Consumes/Produces messages via RabbitMQ.Connects to RabbitMQ for handling order messages.
+        Order-service: Consumes/Produces messages via RabbitMQ.Connects to RabbitMQ for 
+        handling order messages.
 
         Product-service: Provides product-related APIs/data.
 
-        Store-front: frontend gateway that depends on both product and order services. This is the entry point for users.
-        It calls product-service (for catalog) and order-service (for placing orders).
+        Store-front: frontend gateway that depends on both product and order services. 
+        This is the entry point for users. It calls product-service (for catalog) and 
+        order-service (for placing orders).
 
   ## 3  Create Docker files 
 
+        Start from a lightweight Node.js Alpine image.
+
+        Create /app as the workspace.
+
+        Copy dependency manifests → install only production dependencies.
+
+        Copy the rest of the source code.
+
+        Document that the app listens on port 3000.
+
+        Store the app version in an environment variable.
+
+        Run the app with npm start by default.
+
+
   ## 4. Build and Run the images
+
+        Start the Docker Engine 
+
+        # Order Service
+        docker build -t order ./src/order-service 
+        docker tag order:latest $ACR_NAME.azurecr.io/order:v1
+        docker push $ACR_NAME.azurecr.io/order:v1
+
+        # Product Service
+        docker build -t product ./app/product-service 
+        docker tag product:latest $ACR_NAME.azurecr.io/product:v1
+        docker push $ACR_NAME.azurecr.io/product:v1
+
+        # Store Front Service
+        docker build -t store-front ./app/store-front 
+        docker tag store-front:latest $ACR_NAME.azurecr.io/store-front:v1
+        docker push $ACR_NAME.azurecr.io/store-front:v1
+
+        docker images
+
 
 
 # Run the app locally using Docker Compose
