@@ -12,7 +12,6 @@ The application has the following services:
 
 | Service | Description |
 | --- | --- |
-
 | `order-service` | This service is used for placing orders (Javascript) |
 | `product-service` | This service is used to perform CRUD operations on products (Rust) |
 | `store-front` | Web app for customers to place orders (Vue.js) |
