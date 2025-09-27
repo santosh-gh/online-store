@@ -1,3 +1,6 @@
+> [!NOTE]
+> This example and source code is taken from Microsoft Documentations for FREE demo and learning purposes. 
+
 # Online Store
 
 This sample app consists of a group of containerized microservices that can be easily deployed into Kubernetes. This is meant to show a realistic scenario using a polyglot architecture, event-driven design, and common open source back-end services (eg - RabbitMQ). 
