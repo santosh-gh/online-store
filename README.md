@@ -25,6 +25,22 @@ The application has the following services:
 ## Build and Run Docker images
 
   1. Install Docker Desktop
+
+     Windows: https://docs.docker.com/desktop/setup/install/windows-install/
+     Linux:   https://docs.docker.com/desktop/setup/install/linux/
+     Mac:     https://docs.docker.com/desktop/setup/install/mac-install/
+
+     More Links:
+
+     Docker Installation Steps in Windows & Mac OS
+              https://medium.com/@javatechie/docker-installation-steps-in-windows-mac-os-b749fdddf73a
+
+     How to Install Docker on Windows
+              https://medium.com/@supportfly/how-to-install-docker-on-windows-bead8c658a68
+
+     Step-by-Step Tutorial: Installing Docker and Docker Compose on Ubuntu
+              https://tomerklein.dev/step-by-step-tutorial-installing-docker-and-docker-compose-on-ubuntu-a98a1b7aaed0
+
   2. Create the microservices/applications 
   3  Create Docker files.
   4. Build and Run the images
