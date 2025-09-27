@@ -105,3 +105,87 @@ The application has the following services:
 # Run on Local Kubernetes (KinD)
 
 # Run the app on Azure Kubernetes Service (AKS)
+
+
+1️⃣ Create a custom network
+
+All your services are on the backend_services network:
+
+docker network create backend_services
+
+2️⃣ Run RabbitMQ
+docker run -d \
+  --name rabbitmq \
+  --restart always \
+  --network backend_services \
+  -p 15672:15672 \
+  -p 5672:5672 \
+  -e RABBITMQ_DEFAULT_USER=username \
+  -e RABBITMQ_DEFAULT_PASS=password \
+  -v $(pwd)/rabbitmq_enabled_plugins:/etc/rabbitmq/enabled_plugins \
+  rabbitmq:3.13.2-management-alpine
+
+
+Note: Health checks can’t be enforced automatically like Compose, but you can check manually with:
+docker exec rabbitmq rabbitmqctl status
+
+3️⃣ Run Order Service
+
+Since it depends on RabbitMQ, you should wait until RabbitMQ is healthy (or just sleep a few seconds).
+
+docker run -d \
+  --name order-service \
+  --restart always \
+  --network backend_services \
+  -p 3000:3000 \
+  -e ORDER_QUEUE_HOSTNAME=rabbitmq \
+  -e ORDER_QUEUE_PORT=5672 \
+  -e ORDER_QUEUE_USERNAME=username \
+  -e ORDER_QUEUE_PASSWORD=password \
+  -e ORDER_QUEUE_NAME=orders \
+  -e ORDER_QUEUE_RECONNECT_LIMIT=3 \
+  order-service-image
+
+
+Replace order-service-image with the image name you build from src/order-service:
+
+docker build -t order-service-image src/order-service
+
+4️⃣ Run Product Service
+docker run -d \
+  --name product-service \
+  --restart always \
+  --network backend_services \
+  -p 3002:3002 \
+  product-service-image
+
+
+Build it first:
+
+docker build -t product-service-image src/product-service
+
+5️⃣ Run Store Front
+
+Depends on order-service and product-service, so wait a few seconds for them to start:
+
+docker run -d \
+  --name store-front \
+  --restart always \
+  --network backend_services \
+  -p 8080:8080 \
+  store-front-image
+
+
+Build it first:
+
+docker build -t store-front-image src/store-front
+
+✅ Notes / Caveats
+
+Health Checks: Docker Compose automatically waits for services to be healthy. With docker run, you need manual checks or scripts (docker inspect --format='{{.State.Health.Status}}' <container>).
+
+Depends_on: Not supported in docker run. You handle this by manually waiting or using a script to check health.
+
+Volumes: Only RabbitMQ uses one volume. Others are just built images.
+
+Network: All containers must use the same backend_services network to communicate by container name.
