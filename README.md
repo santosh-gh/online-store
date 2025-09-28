@@ -22,6 +22,27 @@ The application has the following services:
 
 ![Logical Application Architecture Diagram](assets/store-architecture.png)
 
+# Microservices
+
+Microservices (or microservice architecture) is a software design approach where an application is built as a collection of small, 
+independent services that communicate with each other using lightweight protocols (usually HTTP/REST, gRPC, or messaging queues).
+
+Each microservice:
+
+  Runs in its own process.
+  Is independently deployable & scalable.
+  Owns its data & logic (usually with its own database).
+  Focuses on a specific business capability (e.g., authentication, messaging, product, order processing).
+
+Advantages of Microservices over Monolithic
+
+  Scalability – Scale only the required service instead of the whole app.
+  Flexibility – Different service can use different programming languages, databases, frameworks.
+  Resilience – Failure in one microservice doesn’t take down the whole system.
+  Faster Development & Deployment – Teams work independently, allowing for CI/CD and faster releases.
+  Reusability – Microservices can be reused across different projects.
+  Easier Maintenance – Smaller codebases are easier to manage and test.
+
 # Build and Run Docker images
 
   ## 1. Install Docker Desktop
@@ -54,22 +75,167 @@ The application has the following services:
         This is the entry point for users. It calls product-service (for catalog) and 
         order-service (for placing orders).
 
+        All communication happens inside the private network backend_services.
+        backend_services: A custom bridge network where all services can communicate with each other by service name 
+        (e.g., rabbitmq, order-service).
+
   ## 3  Create Docker files 
 
-        Start from a lightweight Node.js Alpine image.
+        A Dockerfile is a text file that contains a set of instructions for building a Docker image.
 
-        Create /app as the workspace.
+        Essential Instructions
 
-        Copy dependency manifests → install only production dependencies.
+          FROM → defines the base image.
 
-        Copy the rest of the source code.
+          RUN → runs commands (e.g., install software).
 
-        Document that the app listens on port 3000.
+          CMD → sets the default command when the container runs.
 
-        Store the app version in an environment variable.
+          ENTRYPOINT → defines the main command that always runs, even if you pass arguments.
 
-        Run the app with npm start by default.
+          WORKDIR → sets the working directory inside the container.
+          
+        File & Directory Management
 
+          COPY → copies files from host into the image.
+
+          ADD → like COPY, but also supports remote URLs and automatic archive extraction (e.g., .tar.gz).
+
+          VOLUME → creates a mount point for persistent data or shared volumes.
+
+        Configuration & Environment
+
+          ENV → sets environment variables.
+
+          ARG → defines build-time variables (different from ENV because these don’t persist at runtime unless passed).
+
+          LABEL → adds metadata to the image (author, version, description).
+
+          USER → sets the user to run commands as (instead of root).
+
+          SHELL → changes the default shell used in RUN commands (e.g., ["powershell", "-Command"] on Windows).
+
+        Networking & Ports
+
+            EXPOSE → documents which ports the container will listen on (note: it doesn’t actually publish the port).
+
+        Build Optimizations
+
+            ONBUILD → triggers instructions when the image is used as a base for another build.
+
+            STOPSIGNAL → sets the system call signal used to stop the container.
+
+            HEALTHCHECK → defines a command for checking container health (e.g., ping a service).
+
+        Security & Permissions
+
+            USER → runs commands as a specific user/group.
+
+            CHOWN (used in COPY/ADD) → sets ownership of copied files.
+
+  ## Docker Commands
+
+      Docker Basics
+      # Check Docker version
+      docker --version
+      docker info
+
+      # Get help
+      docker --help
+
+      Images
+      # List images
+      docker images
+
+      # Pull an image
+      docker pull <image_name>:<tag>
+
+      # Remove an image
+      docker rmi <image_id>
+
+      # Build an image from Dockerfile
+      docker build -t <image_name>:<tag> .
+
+      # Tag an image
+      docker tag <image_id> <new_name>:<tag>
+
+      Containers
+      # List running containers
+      docker ps
+
+      # List all containers (including stopped)
+      docker ps -a
+
+      # Run a container
+      docker run -d --name <container_name> <image_name>
+
+      # Run interactively with shell
+      docker run -it <image_name> /bin/bash
+
+      # Start/Stop container
+      docker start <container_id>
+      docker stop <container_id>
+
+      # Restart container
+      docker restart <container_id>
+
+      # Remove container
+      docker rm <container_id>
+
+      # Logs
+      docker logs -f <container_id>
+
+      # Execute command in running container
+      docker exec -it <container_id> /bin/bash
+
+      Volumes & Data
+      # List volumes
+      docker volume ls
+
+      # Create volume
+      docker volume create <volume_name>
+
+      # Mount volume
+      docker run -v <volume_name>:/path/in/container <image_name>
+
+      Networking
+      # List networks
+      docker network ls
+
+      # Create network
+      docker network create <network_name>
+
+      # Connect container to network
+      docker network connect <network_name> <container_id>
+
+      # Disconnect container from network
+      docker network disconnect <network_name> <container_id>
+
+      Docker Compose
+      # Start services
+      docker-compose up -d
+
+      # Stop services
+      docker-compose down
+
+      # Restart services
+      docker-compose restart
+
+      # View logs
+      docker-compose logs -f
+
+      Cleanup
+      # Remove stopped containers
+      docker container prune
+
+      # Remove unused images
+      docker image prune
+
+      # Remove unused volumes
+      docker volume prune
+
+      # Remove everything unused
+      docker system prune -a
 
   ## 4. Build and Run the images
 
