@@ -83,17 +83,13 @@ Advantages of Microservices over Monolithic
 
   ![Docker](docker.png)
 
-        Docker is an open-source platform that allows developers to build, package, and run applications inside containers.
-
+        An open-source platform that allows developers to build, package, and run applications inside containers.
         A container is a lightweight, portable, and isolated environment that includes everything needed to run an application:
 
-        Application code
-
-        Libraries
-
-        Dependencies
-
-        Configurations
+        - Application code
+        - Libraries
+        - Dependencies
+        - Configurations
 
         This makes applications run the same way on any environment (developer laptop, testing server, or cloud).
 
@@ -104,11 +100,11 @@ Advantages of Microservices over Monolithic
          - REST API: Lets apps talk to Docker programmatically.
 
       2. Docker Images
-         - Defines how a container is built.
+         - Defines how a container is built. Blueprint (static, read-only)
          - Contains the application + environment (like OS, libraries, dependencies).
 
       3. Docker Containers
-         - A running instance of a Docker image.
+         - A running instance of a Docker image (dynamic, running).
          - Containers are isolated but can communicate via networking.
 
       4. Dockerfile: A text file with instructions to build a Docker image.
@@ -116,18 +112,28 @@ Advantages of Microservices over Monolithic
       5. Docker Hub (Registry): A repository where Docker images are stored.
 
       6. Docker Compose: A tool to define and run multi-container applications.
-         - Uses a docker-compose.yml file.
+         - Uses a docker-compose.yml file. 
+         - Define app services in one file (docker-compose.yml).
+         - Reproducible environments → same setup runs on any machine.
+         - Simplifies orchestration (without Kubernetes). 
 
+      7. Docker Networks: Helps Docker containers to communicate with each other, the host machine, and external systems.  
+         - Like a Local Area Network inside Docker.
+         - Types: bridge (default), host, none, overlay, macvlan.  
 
+      8. Docker Volume: A mechanism to persist data generated and used by Docker containers.  
+         - Store data outside the container, making it persistent and shareable across containers 
+         - Data persistence (data survives container restarts/deletion).
+         - Sharing data between multiple containers.
+         - Better performance than storing data inside the container filesystem.
+         - Backup & restore support.
 
-
-         
 
   ## 3  Create Docker files 
 
-        A Dockerfile is a text file that contains a set of instructions for building a Docker image.
+        Dockerfile: A text file that contains a set of instructions for building a Docker image.
 
-        Essential Instructions
+        - Essential Instructions
 
           FROM → defines the base image.
 
@@ -139,7 +145,7 @@ Advantages of Microservices over Monolithic
 
           WORKDIR → sets the working directory inside the container.
           
-        File & Directory Management
+        - File & Directory Management
 
           COPY → copies files from host into the image.
 
@@ -147,7 +153,7 @@ Advantages of Microservices over Monolithic
 
           VOLUME → creates a mount point for persistent data or shared volumes.
 
-        Configuration & Environment
+        - Configuration & Environment
 
           ENV → sets environment variables.
 
@@ -159,23 +165,23 @@ Advantages of Microservices over Monolithic
 
           SHELL → changes the default shell used in RUN commands (e.g., ["powershell", "-Command"] on Windows).
 
-        Networking & Ports
+        - Networking & Ports
 
-            EXPOSE → documents which ports the container will listen on (note: it doesn’t actually publish the port).
+          EXPOSE → documents which ports the container will listen on (note: it doesn’t actually publish the port).
 
-        Build Optimizations
+        - Build Optimizations
 
-            ONBUILD → triggers instructions when the image is used as a base for another build.
+          ONBUILD → triggers instructions when the image is used as a base for another build.
 
-            STOPSIGNAL → sets the system call signal used to stop the container.
+          STOPSIGNAL → sets the system call signal used to stop the container.
 
-            HEALTHCHECK → defines a command for checking container health (e.g., ping a service).
+          HEALTHCHECK → defines a command for checking container health (e.g., ping a service).
 
-        Security & Permissions
+        - Security & Permissions
 
-            USER → runs commands as a specific user/group.
+          USER → runs commands as a specific user/group.
 
-            CHOWN (used in COPY/ADD) → sets ownership of copied files.
+          CHOWN (used in COPY/ADD) → sets ownership of copied files.
 
   ## Docker Commands
 
