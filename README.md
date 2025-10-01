@@ -24,62 +24,60 @@ The application has the following services:
 
 # Microservices
 
-Microservices (or microservice architecture) is a software design approach where an application is built as a collection of small, 
-independent services that communicate with each other using lightweight protocols (usually HTTP/REST, gRPC, or messaging queues).
+  Microservices (or microservice architecture) is a software design approach where an application is built as a collection of small, 
+  independent services that communicate with each other using lightweight protocols (usually HTTP/REST, gRPC, or messaging queues).
 
-Each microservice:
+  Each microservice:
 
-  Runs in its own process.
-  Is independently deployable & scalable.
-  Owns its data & logic (usually with its own database).
-  Focuses on a specific business capability (e.g., authentication, messaging, product, order processing).
+    Runs in its own process.
+    Is independently deployable & scalable.
+    Owns its data & logic (usually with its own database).
+    Focuses on a specific business capability (e.g., authentication, messaging, product, order processing).
 
-Advantages of Microservices over Monolithic
+  Advantages of Microservices over Monolithic
 
-  Scalability – Scale only the required service instead of the whole app.
-  Flexibility – Different service can use different programming languages, databases, frameworks.
-  Resilience – Failure in one microservice doesn’t take down the whole system.
-  Faster Development & Deployment – Teams work independently, allowing for CI/CD and faster releases.
-  Reusability – Microservices can be reused across different projects.
-  Easier Maintenance – Smaller codebases are easier to manage and test.
+    Scalability – Scale only the required service instead of the whole app.
+    Flexibility – Different service can use different programming languages, databases, frameworks.
+    Resilience – Failure in one microservice doesn’t take down the whole system.
+    Faster Development & Deployment – Teams work independently, allowing for CI/CD and faster releases.
+    Reusability – Microservices can be reused across different projects.
+    Easier Maintenance – Smaller codebases are easier to manage and test.
 
-# Build and Run Docker images
+# Create the microservices/applications 
 
-  ## 1. Install Docker Desktop
+  RabbitMQ: Message broker, provides the messaging backbone. Should run first.
 
-      Windows: https://docs.docker.com/desktop/setup/install/windows-install/
-      Linux:   https://docs.docker.com/desktop/setup/install/linux/
-      Mac:     https://docs.docker.com/desktop/setup/install/mac-install/
+  Order-service: Consumes/Produces messages via RabbitMQ.Connects to RabbitMQ for 
+  handling order messages.
 
-      More Links:
+  Product-service: Provides product-related APIs/data.
 
-      Docker Installation Steps in Windows & Mac OS
-              https://medium.com/@javatechie/docker-installation-steps-in-windows-mac-os-b749fdddf73a
+  Store-front: frontend gateway that depends on both product and order services. 
+  This is the entry point for users. It calls product-service (for catalog) and 
+  order-service (for placing orders).
 
-      How to Install Docker on Windows
-              https://medium.com/@supportfly/how-to-install-docker-on-windows-bead8c658a68
+  All communication happens inside the private network backend_services.
+  backend_services: A custom bridge network where all services can communicate with each other by service name 
+  (e.g., rabbitmq, order-service).
 
-      Step-by-Step Tutorial: Installing Docker and Docker Compose on Ubuntu
-              https://tomerklein.dev/step-by-step-tutorial-installing-docker-and-docker-compose-on-ubuntu-a98a1b7aaed0
+# Install Docker Desktop
 
-  ## 2. Create the microservices/applications 
+  Windows: https://docs.docker.com/desktop/setup/install/windows-install/
+  Linux:   https://docs.docker.com/desktop/setup/install/linux/
+  Mac:     https://docs.docker.com/desktop/setup/install/mac-install/
 
-        RabbitMQ: Message broker, provides the messaging backbone. Should run first.
+  More Links:
 
-        Order-service: Consumes/Produces messages via RabbitMQ.Connects to RabbitMQ for 
-        handling order messages.
+  Docker Installation Steps in Windows & Mac OS
+          https://medium.com/@javatechie/docker-installation-steps-in-windows-mac-os-b749fdddf73a
 
-        Product-service: Provides product-related APIs/data.
+  How to Install Docker on Windows
+          https://medium.com/@supportfly/how-to-install-docker-on-windows-bead8c658a68
 
-        Store-front: frontend gateway that depends on both product and order services. 
-        This is the entry point for users. It calls product-service (for catalog) and 
-        order-service (for placing orders).
+  Step-by-Step Tutorial: Installing Docker and Docker Compose on Ubuntu
+          https://tomerklein.dev/step-by-step-tutorial-installing-docker-and-docker-compose-on-ubuntu-a98a1b7aaed0
 
-        All communication happens inside the private network backend_services.
-        backend_services: A custom bridge network where all services can communicate with each other by service name 
-        (e.g., rabbitmq, order-service).
-
-  ## 3. What is Docker?
+# 3. What is Docker?
 
   ![Docker](docker.png)
 
@@ -93,7 +91,7 @@ Advantages of Microservices over Monolithic
 
         This makes applications run the same way on any environment (developer laptop, testing server, or cloud).
 
-  ### Docket Components 
+  ## Docket Components 
       1. Docker Engine - runs and manages containers. It Contains
          - Docker Daemon: Runs in the background, manages images, containers, networks and volumes.
          - Docker CLI: Tool to interact with the daemon.
@@ -287,7 +285,7 @@ Advantages of Microservices over Monolithic
       # Remove everything unused
       docker system prune -a
 
-  ## 4. Build and Run the images
+# Build and Run the images
 
         Start the Docker Engine 
 
