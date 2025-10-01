@@ -79,6 +79,50 @@ Advantages of Microservices over Monolithic
         backend_services: A custom bridge network where all services can communicate with each other by service name 
         (e.g., rabbitmq, order-service).
 
+  ## 3. What is Docker?
+
+        ![Docker](docker.png)
+
+        Docker is an open-source platform that allows developers to build, package, and run applications inside containers.
+
+        A container is a lightweight, portable, and isolated environment that includes everything needed to run an application:
+
+        Application code
+
+        Libraries
+
+        Dependencies
+
+        Configurations
+
+        This makes applications run the same way on any environment (developer laptop, testing server, or cloud).
+
+  ### Docket Components 
+      1. Docker Engine - runs and manages containers. It Contains
+         - Docker Daemon: Runs in the background, manages images, containers, networks and volumes.
+         - Docker CLI: Tool to interact with the daemon.
+         - REST API: Lets apps talk to Docker programmatically.
+
+      2. Docker Images
+         - Defines how a container is built.
+         - Contains the application + environment (like OS, libraries, dependencies).
+
+      3. Docker Containers
+         - A running instance of a Docker image.
+         - Containers are isolated but can communicate via networking.
+
+      4. Dockerfile: A text file with instructions to build a Docker image.
+
+      5. Docker Hub (Registry): A repository where Docker images are stored.
+
+      6. Docker Compose: A tool to define and run multi-container applications.
+         - Uses a docker-compose.yml file.
+
+
+
+
+         
+
   ## 3  Create Docker files 
 
         A Dockerfile is a text file that contains a set of instructions for building a Docker image.
@@ -262,6 +306,13 @@ Advantages of Microservices over Monolithic
 
 # Run the app locally using Docker Compose
 
+  rabbitmq_management - Web UI & REST API.
+
+  rabbitmq_prometheus - Metrics endpoint for Prometheus/Grafana.
+
+  rabbitmq_amqp1_0 - Extra protocol support (AMQP 1.0).
+
+
   1. Create Docker Compose file
   2. Run the apps using docker compose up
   3. Stop the app using `CTRL+C`  or using docker compose down from another terminal
@@ -355,3 +406,107 @@ Depends_on: Not supported in docker run. You handle this by manually waiting or 
 Volumes: Only RabbitMQ uses one volume. Others are just built images.
 
 Network: All containers must use the same backend_services network to communicate by container name.
+
+
+
+## Inspect RabbitMQ plugins
+
+  docker exec -it rabbitmq rabbitmq-plugins list
+  docker exec -it rabbitmq cat /etc/rabbitmq/enabled_plugins
+
+  Use the Management UI
+
+  Open: http://localhost:15672
+  Login with the credentials set in docker-compose.yml (username / password).
+
+
+  ## Docker Compose
+    Docker Compose is a tool that helps you define and manage multi-container Docker applications using a single 
+    configuration file (usually docker-compose.yml).
+
+    Instead of starting each container manually with docker run, Compose lets you declare all your services, 
+    networks, and volumes in one file and bring them up with a single command.
+
+  🔹 rabbitmq
+
+    Image: Uses rabbitmq:3.13.2-management-alpine (lightweight version with management UI).
+
+    Purpose: Acts as the message broker that other services use for communication (publish/subscribe to queues).
+
+    Environment variables:
+
+    RABBITMQ_DEFAULT_USER and RABBITMQ_DEFAULT_PASS → set default login credentials.
+
+    Ports:
+
+    15672 → management UI (accessible in browser).
+
+    5672 → AMQP protocol for communication between services.
+
+    Healthcheck: Runs rabbitmqctl status every 30s to verify RabbitMQ is healthy.
+
+    Volumes: Mounts enabled_plugins configuration (so custom plugins can be enabled).
+
+    Network: Connected to backend_services.
+
+    🔹 order-service
+
+    Builds from: src/order-service (custom microservice).
+
+    Purpose: Handles orders (likely consuming messages from RabbitMQ).
+
+    Ports:
+
+    3000:3000 → service exposed on host port 3000.
+
+    Healthcheck: Hits http://order-service:3000/health to check liveness.
+
+    Environment variables: Defines RabbitMQ connection details:
+
+    Host (rabbitmq), port (5672), credentials, queue name (orders).
+
+    ORDER_QUEUE_RECONNECT_LIMIT=3 → retry limit for connecting to RabbitMQ.
+
+    Dependency:
+
+    depends_on.rabbitmq.condition: service_healthy → order-service will only start after RabbitMQ is up and healthy.
+
+    Network: backend_services.
+
+    🔹 product-service
+
+    Builds from: src/product-service.
+
+    Purpose: Handles product-related data (catalog, pricing, availability, etc.).
+
+    Ports:
+
+    3002:3002 → exposed on host port 3002.
+
+    Healthcheck: Hits http://product-service:3002/health.
+
+    Dependency: None explicitly, but it’s on the same network so other services (like store-front) can reach it.
+
+    Network: backend_services.
+
+    🔹 store-front
+
+    Builds from: src/store-front.
+
+    Purpose: The UI / API gateway for customers (frontend of the system).
+
+    Ports:
+
+    8080:8080 → exposed on host port 8080 (probably web UI).
+
+    Healthcheck: Hits http://store-front:80/health (⚠️ note: inside container it expects port 80, even though externally mapped to 8080).
+
+    Dependencies:
+
+    Depends on product-service and order-service (ensures they start first).
+
+    Network: backend_services.
+
+    🔹 networks
+
+    backend_services: A custom bridge network where all services can communicate with each other by service name (e.g., rabbitmq, order-service).
