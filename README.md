@@ -29,19 +29,19 @@ The application has the following services:
 
   Each microservice:
 
-    Runs in its own process.
-    Is independently deployable & scalable.
-    Owns its data & logic (usually with its own database).
-    Focuses on a specific business capability (e.g., authentication, messaging, product, order processing).
+  Runs in its own process.
+  Is independently deployable & scalable.
+  Owns its data & logic (usually with its own database).
+  Focuses on a specific business capability (e.g., authentication, messaging, product, order processing).
 
   Advantages of Microservices over Monolithic
 
-    Scalability – Scale only the required service instead of the whole app.
-    Flexibility – Different service can use different programming languages, databases, frameworks.
-    Resilience – Failure in one microservice doesn’t take down the whole system.
-    Faster Development & Deployment – Teams work independently, allowing for CI/CD and faster releases.
-    Reusability – Microservices can be reused across different projects.
-    Easier Maintenance – Smaller codebases are easier to manage and test.
+  Scalability – Scale only the required service instead of the whole app.
+  Flexibility – Different service can use different programming languages, databases, frameworks.
+  Resilience – Failure in one microservice doesn’t take down the whole system.
+  Faster Development & Deployment – Teams work independently, allowing for CI/CD and faster releases.
+  Reusability – Microservices can be reused across different projects.
+  Easier Maintenance – Smaller codebases are easier to manage and test.
 
 # Create the microservices/applications 
 
@@ -81,230 +81,230 @@ The application has the following services:
 
   ![Docker](docker.png)
 
-        An open-source platform that allows developers to build, package, and run applications inside containers.
-        A container is a lightweight, portable, and isolated environment that includes everything needed to run an application:
+  An open-source platform that allows developers to build, package, and run applications inside containers.
+  A container is a lightweight, portable, and isolated environment that includes everything needed to run an application:
 
-        - Application code
-        - Libraries
-        - Dependencies
-        - Configurations
+  - Application code
+  - Libraries
+  - Dependencies
+  - Configurations
 
-        This makes applications run the same way on any environment (developer laptop, testing server, or cloud).
+  This makes applications run the same way on any environment (developer laptop, testing server, or cloud).
 
   ## Docket Components 
-      1. Docker Engine - runs and manages containers. It Contains
-         - Docker Daemon: Runs in the background, manages images, containers, networks and volumes.
-         - Docker CLI: Tool to interact with the daemon.
-         - REST API: Lets apps talk to Docker programmatically.
+    1. Docker Engine - runs and manages containers. It Contains
+        - Docker Daemon: Runs in the background, manages images, containers, networks and volumes.
+        - Docker CLI: Tool to interact with the daemon.
+        - REST API: Lets apps talk to Docker programmatically.
 
-      2. Docker Images
-         - Defines how a container is built. Blueprint (static, read-only)
-         - Contains the application + environment (like OS, libraries, dependencies).
+    2. Docker Images
+        - Defines how a container is built. Blueprint (static, read-only)
+        - Contains the application + environment (like OS, libraries, dependencies).
 
-      3. Docker Containers
-         - A running instance of a Docker image (dynamic, running).
-         - Containers are isolated but can communicate via networking.
+    3. Docker Containers
+        - A running instance of a Docker image (dynamic, running).
+        - Containers are isolated but can communicate via networking.
 
-      4. Dockerfile: A text file with instructions to build a Docker image.
+    4. Dockerfile: A text file with instructions to build a Docker image.
 
-      5. Docker Hub (Registry): A repository where Docker images are stored.
+    5. Docker Hub (Registry): A repository where Docker images are stored.
 
-      6. Docker Compose: A tool to define and run multi-container applications.
-         - Uses a docker-compose.yml file. 
-         - Define app services in one file (docker-compose.yml).
-         - Reproducible environments → same setup runs on any machine.
-         - Simplifies orchestration (without Kubernetes). 
+    6. Docker Compose: A tool to define and run multi-container applications.
+        - Uses a docker-compose.yml file. 
+        - Define app services in one file (docker-compose.yml).
+        - Reproducible environments → same setup runs on any machine.
+        - Simplifies orchestration (without Kubernetes). 
 
-      7. Docker Networks: Helps Docker containers to communicate with each other, the host machine, and external systems.  
-         - Like a Local Area Network inside Docker.
-         - Types: bridge (default), host, none, overlay, macvlan.  
+    7. Docker Networks: Helps Docker containers to communicate with each other, the host machine, and external systems.  
+        - Like a Local Area Network inside Docker.
+        - Types: bridge (default), host, none, overlay, macvlan.  
 
-      8. Docker Volume: A mechanism to persist data generated and used by Docker containers.  
-         - Store data outside the container, making it persistent and shareable across containers 
-         - Data persistence (data survives container restarts/deletion).
-         - Sharing data between multiple containers.
-         - Better performance than storing data inside the container filesystem.
-         - Backup & restore support.
+    8. Docker Volume: A mechanism to persist data generated and used by Docker containers.  
+        - Store data outside the container, making it persistent and shareable across containers 
+        - Data persistence (data survives container restarts/deletion).
+        - Sharing data between multiple containers.
+        - Better performance than storing data inside the container filesystem.
+        - Backup & restore support.
 
 
   ## 3  Create Docker files 
 
-        Dockerfile: A text file that contains a set of instructions for building a Docker image.
+    Dockerfile: A text file that contains a set of instructions for building a Docker image.
 
-        - Essential Instructions
+    - Essential Instructions
 
-          FROM → defines the base image.
+      FROM → defines the base image.
 
-          RUN → runs commands (e.g., install software).
+      RUN → runs commands (e.g., install software).
 
-          CMD → sets the default command when the container runs.
+      CMD → sets the default command when the container runs.
 
-          ENTRYPOINT → defines the main command that always runs, even if you pass arguments.
+      ENTRYPOINT → defines the main command that always runs, even if you pass arguments.
 
-          WORKDIR → sets the working directory inside the container.
-          
-        - File & Directory Management
+      WORKDIR → sets the working directory inside the container.
+      
+    - File & Directory Management
 
-          COPY → copies files from host into the image.
+      COPY → copies files from host into the image.
 
-          ADD → like COPY, but also supports remote URLs and automatic archive extraction (e.g., .tar.gz).
+      ADD → like COPY, but also supports remote URLs and automatic archive extraction (e.g., .tar.gz).
 
-          VOLUME → creates a mount point for persistent data or shared volumes.
+      VOLUME → creates a mount point for persistent data or shared volumes.
 
-        - Configuration & Environment
+    - Configuration & Environment
 
-          ENV → sets environment variables.
+      ENV → sets environment variables.
 
-          ARG → defines build-time variables (different from ENV because these don’t persist at runtime unless passed).
+      ARG → defines build-time variables (different from ENV because these don’t persist at runtime unless passed).
 
-          LABEL → adds metadata to the image (author, version, description).
+      LABEL → adds metadata to the image (author, version, description).
 
-          USER → sets the user to run commands as (instead of root).
+      USER → sets the user to run commands as (instead of root).
 
-          SHELL → changes the default shell used in RUN commands (e.g., ["powershell", "-Command"] on Windows).
+      SHELL → changes the default shell used in RUN commands (e.g., ["powershell", "-Command"] on Windows).
 
-        - Networking & Ports
+    - Networking & Ports
 
-          EXPOSE → documents which ports the container will listen on (note: it doesn’t actually publish the port).
+      EXPOSE → documents which ports the container will listen on (note: it doesn’t actually publish the port).
 
-        - Build Optimizations
+    - Build Optimizations
 
-          ONBUILD → triggers instructions when the image is used as a base for another build.
+      ONBUILD → triggers instructions when the image is used as a base for another build.
 
-          STOPSIGNAL → sets the system call signal used to stop the container.
+      STOPSIGNAL → sets the system call signal used to stop the container.
 
-          HEALTHCHECK → defines a command for checking container health (e.g., ping a service).
+      HEALTHCHECK → defines a command for checking container health (e.g., ping a service).
 
-        - Security & Permissions
+    - Security & Permissions
 
-          USER → runs commands as a specific user/group.
+      USER → runs commands as a specific user/group.
 
-          CHOWN (used in COPY/ADD) → sets ownership of copied files.
+      CHOWN (used in COPY/ADD) → sets ownership of copied files.
 
   ## Docker Commands
 
-      Docker Basics
-      # Check Docker version
-      docker --version
-      docker info
+    Docker Basics
+    # Check Docker version
+    docker --version
+    docker info
 
-      # Get help
-      docker --help
+    # Get help
+    docker --help
 
-      Images
-      # List images
-      docker images
+    Images
+    # List images
+    docker images
 
-      # Pull an image
-      docker pull <image_name>:<tag>
+    # Pull an image
+    docker pull <image_name>:<tag>
 
-      # Remove an image
-      docker rmi <image_id>
+    # Remove an image
+    docker rmi <image_id>
 
-      # Build an image from Dockerfile
-      docker build -t <image_name>:<tag> .
+    # Build an image from Dockerfile
+    docker build -t <image_name>:<tag> .
 
-      # Tag an image
-      docker tag <image_id> <new_name>:<tag>
+    # Tag an image
+    docker tag <image_id> <new_name>:<tag>
 
-      Containers
-      # List running containers
-      docker ps
+    Containers
+    # List running containers
+    docker ps
 
-      # List all containers (including stopped)
-      docker ps -a
+    # List all containers (including stopped)
+    docker ps -a
 
-      # Run a container
-      docker run -d --name <container_name> <image_name>
+    # Run a container
+    docker run -d --name <container_name> <image_name>
 
-      # Run interactively with shell
-      docker run -it <image_name> /bin/bash
+    # Run interactively with shell
+    docker run -it <image_name> /bin/bash
 
-      # Start/Stop container
-      docker start <container_id>
-      docker stop <container_id>
+    # Start/Stop container
+    docker start <container_id>
+    docker stop <container_id>
 
-      # Restart container
-      docker restart <container_id>
+    # Restart container
+    docker restart <container_id>
 
-      # Remove container
-      docker rm <container_id>
+    # Remove container
+    docker rm <container_id>
 
-      # Logs
-      docker logs -f <container_id>
+    # Logs
+    docker logs -f <container_id>
 
-      # Execute command in running container
-      docker exec -it <container_id> /bin/bash
+    # Execute command in running container
+    docker exec -it <container_id> /bin/bash
 
-      Volumes & Data
-      # List volumes
-      docker volume ls
+    Volumes & Data
+    # List volumes
+    docker volume ls
 
-      # Create volume
-      docker volume create <volume_name>
+    # Create volume
+    docker volume create <volume_name>
 
-      # Mount volume
-      docker run -v <volume_name>:/path/in/container <image_name>
+    # Mount volume
+    docker run -v <volume_name>:/path/in/container <image_name>
 
-      Networking
-      # List networks
-      docker network ls
+    Networking
+    # List networks
+    docker network ls
 
-      # Create network
-      docker network create <network_name>
+    # Create network
+    docker network create <network_name>
 
-      # Connect container to network
-      docker network connect <network_name> <container_id>
+    # Connect container to network
+    docker network connect <network_name> <container_id>
 
-      # Disconnect container from network
-      docker network disconnect <network_name> <container_id>
+    # Disconnect container from network
+    docker network disconnect <network_name> <container_id>
 
-      Docker Compose
-      # Start services
-      docker-compose up -d
+    Docker Compose
+    # Start services
+    docker-compose up -d
 
-      # Stop services
-      docker-compose down
+    # Stop services
+    docker-compose down
 
-      # Restart services
-      docker-compose restart
+    # Restart services
+    docker-compose restart
 
-      # View logs
-      docker-compose logs -f
+    # View logs
+    docker-compose logs -f
 
-      Cleanup
-      # Remove stopped containers
-      docker container prune
+    Cleanup
+    # Remove stopped containers
+    docker container prune
 
-      # Remove unused images
-      docker image prune
+    # Remove unused images
+    docker image prune
 
-      # Remove unused volumes
-      docker volume prune
+    # Remove unused volumes
+    docker volume prune
 
-      # Remove everything unused
-      docker system prune -a
+    # Remove everything unused
+    docker system prune -a
 
 # Build and Run the images
 
-        Start the Docker Engine 
+  Start the Docker Engine 
 
-        # Order Service
-        docker build -t order ./src/order-service 
-        docker tag order:latest $ACR_NAME.azurecr.io/order:v1
-        docker push $ACR_NAME.azurecr.io/order:v1
+  # Order Service
+  docker build -t order ./src/order-service 
+  docker tag order:latest $ACR_NAME.azurecr.io/order:v1
+  docker push $ACR_NAME.azurecr.io/order:v1
 
-        # Product Service
-        docker build -t product ./app/product-service 
-        docker tag product:latest $ACR_NAME.azurecr.io/product:v1
-        docker push $ACR_NAME.azurecr.io/product:v1
+  # Product Service
+  docker build -t product ./app/product-service 
+  docker tag product:latest $ACR_NAME.azurecr.io/product:v1
+  docker push $ACR_NAME.azurecr.io/product:v1
 
-        # Store Front Service
-        docker build -t store-front ./app/store-front 
-        docker tag store-front:latest $ACR_NAME.azurecr.io/store-front:v1
-        docker push $ACR_NAME.azurecr.io/store-front:v1
+  # Store Front Service
+  docker build -t store-front ./app/store-front 
+  docker tag store-front:latest $ACR_NAME.azurecr.io/store-front:v1
+  docker push $ACR_NAME.azurecr.io/store-front:v1
 
-        docker images
+  docker images
 
 
 
