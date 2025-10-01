@@ -81,7 +81,7 @@ Advantages of Microservices over Monolithic
 
   ## 3. What is Docker?
 
-        ![Docker](docker.png)
+  ![Docker](docker.png)
 
         Docker is an open-source platform that allows developers to build, package, and run applications inside containers.
 
