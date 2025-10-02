@@ -7,7 +7,6 @@ This sample app consists of a group of containerized microservices that can be e
 This is meant to show a realistic scenario using a polyglot architecture, event-driven design, and common open 
 source back-end services (eg - RabbitMQ). 
 
-
 > [!NOTE]
 > This is not meant to be an example of perfect code to be used in production, but more about showing a 
   realistic application running in Kubernetes. 
@@ -68,9 +67,10 @@ The application has the following services:
   This is the entry point for users. It calls product-service (for catalog) and 
   order-service (for placing orders).
 
-  All communication happens inside the private network backend_services.
-  backend_services: A custom bridge network where all services can communicate with each other 
+  A custom bridge network where all services can communicate with each other 
   by service name (e.g., rabbitmq, order-service).
+
+
 
 # Install Docker Desktop
 
@@ -125,7 +125,7 @@ The application has the following services:
     6. Docker Compose: A tool to define and run multi-container applications.
         - Uses a docker-compose.yml file. 
         - Define app services in one file (docker-compose.yml).
-        - Reproducible environments → same setup runs on any machine.
+        - Reproducible environments -> same setup runs on any machine.
         - Simplifies orchestration (without Kubernetes). 
 
     7. Docker Networks: Helps Docker containers to communicate with each other, the host machine, and external systems.  
@@ -145,57 +145,56 @@ The application has the following services:
 
     - Essential Instructions
 
-      FROM → defines the base image.
+      FROM -> defines the base image.
 
-      RUN → runs commands (e.g., install software).
+      RUN -> runs commands (e.g., install software).
 
-      CMD → sets the default command when the container runs.
+      CMD -> sets the default command when the container runs.
 
-      ENTRYPOINT → defines the main command that always runs, even if you pass arguments.
+      ENTRYPOINT -> defines the main command that always runs, even if you pass arguments.
 
-      WORKDIR → sets the working directory inside the container.
+      WORKDIR -> sets the working directory inside the container.
       
     - File & Directory Management
 
-      COPY → copies files from host into the image.
+      COPY -> copies files from host into the image.
 
-      ADD → like COPY, but also supports remote URLs and automatic archive extraction (e.g., .tar.gz).
+      ADD -> like COPY, but also supports remote URLs and automatic archive extraction (e.g., .tar.gz).
 
-      VOLUME → creates a mount point for persistent data or shared volumes.
+      VOLUME -> creates a mount point for persistent data or shared volumes.
 
     - Configuration & Environment
 
-      ENV → sets environment variables.
+      ENV -> sets environment variables.
 
-      ARG → defines build-time variables (different from ENV because these don’t persist at runtime unless passed).
+      ARG -> defines build-time variables (different from ENV because these don’t persist at runtime unless passed).
 
-      LABEL → adds metadata to the image (author, version, description).
+      LABEL -> adds metadata to the image (author, version, description).
 
-      USER → sets the user to run commands as (instead of root).
+      USER -> sets the user to run commands as (instead of root).
 
-      SHELL → changes the default shell used in RUN commands (e.g., ["powershell", "-Command"] on Windows).
+      SHELL -> changes the default shell used in RUN commands (e.g., ["powershell", "-Command"] on Windows).
 
     - Networking & Ports
 
-      EXPOSE → documents which ports the container will listen on (note: it doesn’t actually publish the port).
+      EXPOSE -> documents which ports the container will listen on (note: it doesn’t actually publish the port).
 
     - Build Optimizations
 
-      ONBUILD → triggers instructions when the image is used as a base for another build.
+      ONBUILD -> triggers instructions when the image is used as a base for another build.
 
-      STOPSIGNAL → sets the system call signal used to stop the container.
+      STOPSIGNAL -> sets the system call signal used to stop the container.
 
-      HEALTHCHECK → defines a command for checking container health (e.g., ping a service).
+      HEALTHCHECK -> defines a command for checking container health (e.g., ping a service).
 
     - Security & Permissions
 
-      USER → runs commands as a specific user/group.
+      USER -> runs commands as a specific user/group.
 
-      CHOWN (used in COPY/ADD) → sets ownership of copied files.
+      CHOWN (used in COPY/ADD) -> sets ownership of copied files.
 
   ## Docker Commands
 
-    Docker Basics
     # Check Docker version
     docker --version
     docker info
@@ -302,13 +301,13 @@ The application has the following services:
     Start the Docker Engine 
 
     1. Order Service
-       docker build -t order-service-image src/order-service
+       docker build -t order-service src/order-service
 
     2. Product Service
-       docker build -t product-service-image src/product-service
+       docker build -t product-service src/product-service
 
     3. Store Front Service
-       docker build -t store-front-image src/store-front 
+       docker build -t store-front src/store-front 
 
        docker images
 
@@ -333,7 +332,12 @@ The application has the following services:
           -v $(pwd)/rabbitmq_enabled_plugins:/etc/rabbitmq/enabled_plugins \
           rabbitmq:3.13.2-management-alpine
 
-        Note: Health checks can’t be enforced automatically like Compose, but you can 
+        Note: 
+        rabbitmq_management - Web UI & REST API.
+        rabbitmq_prometheus - Metrics endpoint for Prometheus/Grafana.
+        rabbitmq_amqp1_0 - Extra protocol support (AMQP 1.0). 
+
+        Health checks can’t be enforced automatically like Compose, but you can 
         check manually with:
         
         docker exec rabbitmq rabbitmqctl status
@@ -353,7 +357,7 @@ The application has the following services:
           -e ORDER_QUEUE_PASSWORD=password \
           -e ORDER_QUEUE_NAME=orders \
           -e ORDER_QUEUE_RECONNECT_LIMIT=3 \
-          order-service-image      
+          order-service      
 
     4. Run Product Service
         docker run -d \
@@ -361,7 +365,7 @@ The application has the following services:
           --restart always \
           --network backend_services \
           -p 3002:3002 \
-          product-service-image
+          product-service
         
     5. Run Store Front
 
@@ -371,13 +375,9 @@ The application has the following services:
           --restart always \
           --network backend_services \
           -p 8080:8080 \
-          store-front-image
+          store-front
 
-    Note:
-
-    rabbitmq_management - Web UI & REST API.
-    rabbitmq_prometheus - Metrics endpoint for Prometheus/Grafana.
-    rabbitmq_amqp1_0 - Extra protocol support (AMQP 1.0).
+    Note:    
 
     Health Checks: Docker Compose automatically waits for services to be healthy. 
     With docker run, we need manual checks.
@@ -409,17 +409,17 @@ The application has the following services:
 
         Environment variables:
 
-        RABBITMQ_DEFAULT_USER and RABBITMQ_DEFAULT_PASS → set default login credentials.
+        RABBITMQ_DEFAULT_USER and RABBITMQ_DEFAULT_PASS -> set default login credentials.
 
         Ports:
 
-        15672 → management UI (accessible in browser).
+        15672 -> management UI (accessible in browser).
 
-        5672 → AMQP protocol for communication between services.
+        5672 -> AMQP protocol for communication between services.
 
         Healthcheck: Runs rabbitmqctl status every 30s to verify RabbitMQ is healthy.
 
-        Volumes: Mounts enabled_plugins configuration (so custom plugins can be enabled).
+        Volumes: Mounts enabled_plugins configuration (so custom plugins can be enabled).                         
 
         Network: Connected to backend_services.
 
@@ -431,7 +431,7 @@ The application has the following services:
 
         Ports:
 
-        3000:3000 → service exposed on host port 3000.
+        3000:3000 -> service exposed on host port 3000.
 
         Healthcheck: Hits http://order-service:3000/health to check liveness.
 
@@ -439,11 +439,11 @@ The application has the following services:
 
         Host (rabbitmq), port (5672), credentials, queue name (orders).
 
-        ORDER_QUEUE_RECONNECT_LIMIT=3 → retry limit for connecting to RabbitMQ.
+        ORDER_QUEUE_RECONNECT_LIMIT=3 -> retry limit for connecting to RabbitMQ.
 
         Dependency:
 
-        depends_on.rabbitmq.condition: service_healthy → order-service will 
+        depends_on.rabbitmq.condition: service_healthy -> order-service will 
         only start after RabbitMQ is up and healthy.
 
         Network: backend_services.
@@ -456,7 +456,7 @@ The application has the following services:
 
         Ports:
 
-        3002:3002 → exposed on host port 3002.
+        3002:3002 -> exposed on host port 3002.
 
         Healthcheck: Hits http://product-service:3002/health.
 
@@ -473,7 +473,7 @@ The application has the following services:
 
         Ports:
 
-        8080:8080 → exposed on host port 8080 (probably web UI).
+        8080:8080 -> exposed on host port 8080 (probably web UI).
 
         Healthcheck: Hits http://store-front:80/health (⚠️ note: inside container 
         it expects port 80, even though externally mapped to 8080).
@@ -489,9 +489,35 @@ The application has the following services:
         backend_services: A custom bridge network where all services can communicate 
         with each other by service name (e.g., rabbitmq, order-service).
 
+    - Docker Compose Commands
 
-    2. Run the apps using docker compose up
-    3. Stop the app using `CTRL+C`  or using docker compose down from another terminal
+      - Service life cycle
+        docker compose up
+        docker compose down
+        docker compose start
+        docker compose stop
+        docker compose restart
+        docker compose pause
+        docker compose unpause
+
+      - Service & Container Management
+        docker compose ps
+        docker compose kill
+
+      - Build & Images
+        docker compose build
+        docker compose pull
+        docker compose push
+        docker compose images
+
+      - Logs & Debugging
+        docker compose logs
+        docker compose top
+        docker compose config
+
+      - Scale
+        docker compose up -d --scale <service>=<num>
+
 
 # Inspect RabbitMQ plugins
 
@@ -509,4 +535,3 @@ The application has the following services:
 # Run on Local Kubernetes (KinD)
 
 # Run the app on Azure Kubernetes Service (AKS)
-    
