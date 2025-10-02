@@ -14,9 +14,9 @@ fi
 
 # --- BUILD IMAGES ---
 echo "Building images..."
-docker build -t order-service-image src/order-service
-docker build -t product-service-image src/product-service
-docker build -t store-front-image src/store-front
+docker build -t order-service src/order-service
+docker build -t product-service src/product-service
+docker build -t store-front src/store-front
 
 # --- START RABBITMQ ---
 echo "Starting RabbitMQ..."
@@ -44,7 +44,7 @@ docker run -d \
   -e ORDER_QUEUE_PASSWORD=password \
   -e ORDER_QUEUE_NAME=orders \
   -e ORDER_QUEUE_RECONNECT_LIMIT=3 \
-  order-service-image
+  order-service
 
 # --- START PRODUCT-SERVICE ---
 echo "Starting product-service..."
@@ -53,7 +53,7 @@ docker run -d \
   --restart always \
   --network $NETWORK_NAME \
   -p 3002:3002 \
-  product-service-image
+  product-service
 
 # --- START STORE-FRONT ---
 echo "Starting store-front..."
@@ -62,7 +62,7 @@ docker run -d \
   --restart always \
   --network $NETWORK_NAME \
   -p 8080:8080 \
-  store-front-image
+  store-front
 
 # --- ACCESS THE APPLICATION ---
 curl localhost:8080
