@@ -55,7 +55,7 @@ The application has the following services:
 
     Easier Maintenance – Smaller codebases are easier to manage and test.
 
-# Example: The Appplicatin and Microservices
+# Dockerize the Appplicatin (Microservices)
 
   RabbitMQ: Message broker, provides the messaging backbone. Should run first.
 
@@ -107,12 +107,11 @@ The application has the following services:
   ## Docket Components 
     1. Docker Engine - runs and manages containers. It Contains
         - Docker Daemon: Runs in the background, manages images, containers, networks and volumes.
-        - Docker CLI: Tool to interact with the daemon.
-        - REST API: Lets apps talk to Docker programmatically.
+        - Docker Client/CLI: Tool to interact with the daemon.
 
     2. Docker Images
-        - Defines how a container is built. Blueprint (static, read-only)
-        - Contains the application + environment (like OS, libraries, dependencies).
+        - image is a file which contains dependencies, binaries and required 
+          configurations to run software inside a container.(static, read-only)
 
     3. Docker Containers
         - A running instance of a Docker image (dynamic, running).
