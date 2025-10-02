@@ -91,7 +91,7 @@ The application has the following services:
 
 # What is Docker?
 
-  ![Docker](docker.png)
+  ![Docker](assets/docker.png)
 
   An open-source platform that allows developers to build, package, and run applications inside containers.
   A container is a lightweight, portable, and isolated environment that includes everything 
