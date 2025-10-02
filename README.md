@@ -3,11 +3,14 @@
 
 # Online Store
 
-This sample app consists of a group of containerized microservices that can be easily deployed into Kubernetes. This is meant to show a realistic scenario using a polyglot architecture, event-driven design, and common open source back-end services (eg - RabbitMQ). 
+This sample app consists of a group of containerized microservices that can be easily deployed into Kubernetes. 
+This is meant to show a realistic scenario using a polyglot architecture, event-driven design, and common open 
+source back-end services (eg - RabbitMQ). 
 
 
 > [!NOTE]
-> This is not meant to be an example of perfect code to be used in production, but more about showing a realistic application running in Kubernetes. 
+> This is not meant to be an example of perfect code to be used in production, but more about showing a 
+  realistic application running in Kubernetes. 
 
 # Architecture
 
@@ -25,7 +28,8 @@ The application has the following services:
 # Microservices
 
   A software design approach where an application is built as a collection of small, independent 
-  services that communicate with each other using lightweight protocols usually HTTP/REST, gRPC, or messaging queues.
+  services that communicate with each other using lightweight protocols usually 
+  HTTP/REST, gRPC, or messaging queues.
 
   Each microservice:
 
@@ -65,8 +69,8 @@ The application has the following services:
   order-service (for placing orders).
 
   All communication happens inside the private network backend_services.
-  backend_services: A custom bridge network where all services can communicate with each other by service name 
-  (e.g., rabbitmq, order-service).
+  backend_services: A custom bridge network where all services can communicate with each other 
+  by service name (e.g., rabbitmq, order-service).
 
 # Install Docker Desktop
 
@@ -77,20 +81,21 @@ The application has the following services:
   More Links:
 
   Docker Installation Steps in Windows & Mac OS
-          https://medium.com/@javatechie/docker-installation-steps-in-windows-mac-os-b749fdddf73a
+  https://medium.com/@javatechie/docker-installation-steps-in-windows-mac-os-b749fdddf73a
 
   How to Install Docker on Windows
-          https://medium.com/@supportfly/how-to-install-docker-on-windows-bead8c658a68
+  https://medium.com/@supportfly/how-to-install-docker-on-windows-bead8c658a68
 
   Step-by-Step Tutorial: Installing Docker and Docker Compose on Ubuntu
-          https://tomerklein.dev/step-by-step-tutorial-installing-docker-and-docker-compose-on-ubuntu-a98a1b7aaed0
+  https://tomerklein.dev/step-by-step-tutorial-installing-docker-and-docker-compose-on-ubuntu-a98a1b7aaed0
 
 # What is Docker?
 
   ![Docker](docker.png)
 
   An open-source platform that allows developers to build, package, and run applications inside containers.
-  A container is a lightweight, portable, and isolated environment that includes everything needed to run an application:
+  A container is a lightweight, portable, and isolated environment that includes everything 
+  needed to run an application.
 
   - Application code
   - Libraries
@@ -134,7 +139,7 @@ The application has the following services:
         - Better performance than storing data inside the container filesystem.
         - Backup & restore support.
 
-  ## 3  Create Docker files 
+  ## 3 Docker files 
 
     Dockerfile: A text file that contains a set of instructions for building a Docker image.
 
@@ -296,23 +301,22 @@ The application has the following services:
 
   Start the Docker Engine 
 
-  # Order Service
-  docker build -t order-service-image src/order-service
-  docker tag order:latest $ACR_NAME.azurecr.io/order:v1
-  docker push $ACR_NAME.azurecr.io/order:v1
+  1. Order Service
+     docker build -t order-service-image src/order-service
+     docker tag order:latest $ACR_NAME.azurecr.io/order:v1
+     docker push $ACR_NAME.azurecr.io/order:v1
 
-  # Product Service
-  docker build -t product-service-image src/product-service
+  2. Product Service
+     docker build -t product-service-image src/product-service
+     d ocker tag product:latest $ACR_NAME.azurecr.io/product:v1
+     docker push $ACR_NAME.azurecr.io/product:v1
 
-  docker tag product:latest $ACR_NAME.azurecr.io/product:v1
-  docker push $ACR_NAME.azurecr.io/product:v1
+  3. Store Front Service
+     docker build -t store-front-image src/store-front 
+     docker tag store-front:latest $ACR_NAME.azurecr.io/store-front:v1
+     docker push $ACR_NAME.azurecr.io/store-front:v1
 
-  # Store Front Service
-  docker build -t store-front ./app/store-front 
-  docker tag store-front:latest $ACR_NAME.azurecr.io/store-front:v1
-  docker push $ACR_NAME.azurecr.io/store-front:v1
-
-  docker images
+     docker images
 
 # Run Docker Images
 
@@ -375,46 +379,127 @@ The application has the following services:
         -p 8080:8080 \
         store-front-image
 
-# Run the app locally using Docker Compose
+  Note:
 
   rabbitmq_management - Web UI & REST API.
-
   rabbitmq_prometheus - Metrics endpoint for Prometheus/Grafana.
-
   rabbitmq_amqp1_0 - Extra protocol support (AMQP 1.0).
 
+  Health Checks: Docker Compose automatically waits for services to be healthy. 
+  With docker run, we need manual checks.
 
-  1. Create Docker Compose file
+  Depends_on: Not supported in docker run. You handle this by manually waiting 
+  or using a script to check health.
+
+  Volumes: Only RabbitMQ uses one volume. Others are just built images.
+  
+  Network: All containers must use the same backend_services network to communicate 
+  by container name.
+
+# Run the app locally using Docker Compose
+
+  A tool that define and manage multi-container Docker applications using a single 
+  configuration file (usually docker-compose.yml).
+
+  Instead of starting each container manually with docker run, Compose declare all the services, 
+  networks, and volumes in one file and bring them up with a single command.
+
+  - Create Docker Compose file    
+
+    1. rabbitmq
+
+      Image: Uses rabbitmq:3.13.2-management-alpine (lightweight version with management UI).
+
+      Purpose: Acts as the message broker that other services use 
+      for communication (publish/subscribe to queues).
+
+      Environment variables:
+
+      RABBITMQ_DEFAULT_USER and RABBITMQ_DEFAULT_PASS → set default login credentials.
+
+      Ports:
+
+      15672 → management UI (accessible in browser).
+
+      5672 → AMQP protocol for communication between services.
+
+      Healthcheck: Runs rabbitmqctl status every 30s to verify RabbitMQ is healthy.
+
+      Volumes: Mounts enabled_plugins configuration (so custom plugins can be enabled).
+
+      Network: Connected to backend_services.
+
+    2. order-service
+
+      Builds from: src/order-service (custom microservice).
+
+      Purpose: Handles orders (likely consuming messages from RabbitMQ).
+
+      Ports:
+
+      3000:3000 → service exposed on host port 3000.
+
+      Healthcheck: Hits http://order-service:3000/health to check liveness.
+
+      Environment variables: Defines RabbitMQ connection details:
+
+      Host (rabbitmq), port (5672), credentials, queue name (orders).
+
+      ORDER_QUEUE_RECONNECT_LIMIT=3 → retry limit for connecting to RabbitMQ.
+
+      Dependency:
+
+      depends_on.rabbitmq.condition: service_healthy → order-service will 
+      only start after RabbitMQ is up and healthy.
+
+      Network: backend_services.
+
+    3. product-service
+
+      Builds from: src/product-service.
+
+      Purpose: Handles product-related data (catalog, pricing, availability, etc.).
+
+      Ports:
+
+      3002:3002 → exposed on host port 3002.
+
+      Healthcheck: Hits http://product-service:3002/health.
+
+      Dependency: None explicitly, but it’s on the same network 
+      so other services (like store-front) can reach it.
+
+      Network: backend_services.
+
+    4. store-front
+
+      Builds from: src/store-front.
+
+      Purpose: The UI / API gateway for customers (frontend of the system).
+
+      Ports:
+
+      8080:8080 → exposed on host port 8080 (probably web UI).
+
+      Healthcheck: Hits http://store-front:80/health (⚠️ note: inside container 
+      it expects port 80, even though externally mapped to 8080).
+
+      Dependencies:
+
+      Depends on product-service and order-service (ensures they start first).
+
+      Network: backend_services.
+
+    5. networks
+
+      backend_services: A custom bridge network where all services can communicate 
+      with each other by service name (e.g., rabbitmq, order-service).
+
+
   2. Run the apps using docker compose up
   3. Stop the app using `CTRL+C`  or using docker compose down from another terminal
 
-# Run on Local Kubernetes (Minikube)
-
-# Run on Local Kubernetes (KinD)
-
-# Run the app on Azure Kubernetes Service (AKS)
-
-
-
-
-
-Build it first:
-
-docker build -t store-front-image src/store-front
-
-✅ Notes / Caveats
-
-Health Checks: Docker Compose automatically waits for services to be healthy. With docker run, you need manual checks or scripts (docker inspect --format='{{.State.Health.Status}}' <container>).
-
-Depends_on: Not supported in docker run. You handle this by manually waiting or using a script to check health.
-
-Volumes: Only RabbitMQ uses one volume. Others are just built images.
-
-Network: All containers must use the same backend_services network to communicate by container name.
-
-
-
-## Inspect RabbitMQ plugins
+# Inspect RabbitMQ plugins
 
   docker exec -it rabbitmq rabbitmq-plugins list
   docker exec -it rabbitmq cat /etc/rabbitmq/enabled_plugins
@@ -425,93 +510,9 @@ Network: All containers must use the same backend_services network to communicat
   Login with the credentials set in docker-compose.yml (username / password).
 
 
-  ## Docker Compose
-    Docker Compose is a tool that helps you define and manage multi-container Docker applications using a single 
-    configuration file (usually docker-compose.yml).
+# Run on Local Kubernetes (Minikube)
 
-    Instead of starting each container manually with docker run, Compose lets you declare all your services, 
-    networks, and volumes in one file and bring them up with a single command.
+# Run on Local Kubernetes (KinD)
 
-  🔹 rabbitmq
-
-    Image: Uses rabbitmq:3.13.2-management-alpine (lightweight version with management UI).
-
-    Purpose: Acts as the message broker that other services use for communication (publish/subscribe to queues).
-
-    Environment variables:
-
-    RABBITMQ_DEFAULT_USER and RABBITMQ_DEFAULT_PASS → set default login credentials.
-
-    Ports:
-
-    15672 → management UI (accessible in browser).
-
-    5672 → AMQP protocol for communication between services.
-
-    Healthcheck: Runs rabbitmqctl status every 30s to verify RabbitMQ is healthy.
-
-    Volumes: Mounts enabled_plugins configuration (so custom plugins can be enabled).
-
-    Network: Connected to backend_services.
-
-    🔹 order-service
-
-    Builds from: src/order-service (custom microservice).
-
-    Purpose: Handles orders (likely consuming messages from RabbitMQ).
-
-    Ports:
-
-    3000:3000 → service exposed on host port 3000.
-
-    Healthcheck: Hits http://order-service:3000/health to check liveness.
-
-    Environment variables: Defines RabbitMQ connection details:
-
-    Host (rabbitmq), port (5672), credentials, queue name (orders).
-
-    ORDER_QUEUE_RECONNECT_LIMIT=3 → retry limit for connecting to RabbitMQ.
-
-    Dependency:
-
-    depends_on.rabbitmq.condition: service_healthy → order-service will only start after RabbitMQ is up and healthy.
-
-    Network: backend_services.
-
-    🔹 product-service
-
-    Builds from: src/product-service.
-
-    Purpose: Handles product-related data (catalog, pricing, availability, etc.).
-
-    Ports:
-
-    3002:3002 → exposed on host port 3002.
-
-    Healthcheck: Hits http://product-service:3002/health.
-
-    Dependency: None explicitly, but it’s on the same network so other services (like store-front) can reach it.
-
-    Network: backend_services.
-
-    🔹 store-front
-
-    Builds from: src/store-front.
-
-    Purpose: The UI / API gateway for customers (frontend of the system).
-
-    Ports:
-
-    8080:8080 → exposed on host port 8080 (probably web UI).
-
-    Healthcheck: Hits http://store-front:80/health (⚠️ note: inside container it expects port 80, even though externally mapped to 8080).
-
-    Dependencies:
-
-    Depends on product-service and order-service (ensures they start first).
-
-    Network: backend_services.
-
-    🔹 networks
-
-    backend_services: A custom bridge network where all services can communicate with each other by service name (e.g., rabbitmq, order-service).
+# Run the app on Azure Kubernetes Service (AKS)
+    
