@@ -24,26 +24,34 @@ The application has the following services:
 
 # Microservices
 
-  Microservices (or microservice architecture) is a software design approach where an application is built as a collection of small, 
-  independent services that communicate with each other using lightweight protocols (usually HTTP/REST, gRPC, or messaging queues).
+  A software design approach where an application is built as a collection of small, independent 
+  services that communicate with each other using lightweight protocols usually HTTP/REST, gRPC, or messaging queues.
 
   Each microservice:
 
-  Runs in its own process.
-  Is independently deployable & scalable.
-  Owns its data & logic (usually with its own database).
-  Focuses on a specific business capability (e.g., authentication, messaging, product, order processing).
+    Runs in its own process.
+
+    Is independently deployable & scalable.
+
+    Owns its data & logic (usually with its own database).
+
+    Focuses on a specific business capability (e.g., authentication, messaging, product, order processing).
 
   Advantages of Microservices over Monolithic
 
-  Scalability – Scale only the required service instead of the whole app.
-  Flexibility – Different service can use different programming languages, databases, frameworks.
-  Resilience – Failure in one microservice doesn’t take down the whole system.
-  Faster Development & Deployment – Teams work independently, allowing for CI/CD and faster releases.
-  Reusability – Microservices can be reused across different projects.
-  Easier Maintenance – Smaller codebases are easier to manage and test.
+    Scalability – Scale only the required service instead of the whole app.
 
-# Create the microservices/applications 
+    Flexibility – Different service can use different programming languages, databases, frameworks.
+
+    Resilience – Failure in one microservice doesn’t take down the whole system.
+
+    Faster Development & Deployment – Teams work independently, allowing for CI/CD and faster releases.
+
+    Reusability – Microservices can be reused across different projects.
+
+    Easier Maintenance – Smaller codebases are easier to manage and test.
+
+# Example: The Appplicatin and Microservices
 
   RabbitMQ: Message broker, provides the messaging backbone. Should run first.
 
@@ -77,7 +85,7 @@ The application has the following services:
   Step-by-Step Tutorial: Installing Docker and Docker Compose on Ubuntu
           https://tomerklein.dev/step-by-step-tutorial-installing-docker-and-docker-compose-on-ubuntu-a98a1b7aaed0
 
-# 3. What is Docker?
+# What is Docker?
 
   ![Docker](docker.png)
 
@@ -125,7 +133,6 @@ The application has the following services:
         - Sharing data between multiple containers.
         - Better performance than storing data inside the container filesystem.
         - Backup & restore support.
-
 
   ## 3  Create Docker files 
 
@@ -285,17 +292,18 @@ The application has the following services:
     # Remove everything unused
     docker system prune -a
 
-# Build and Run the images
+# Build Docker Images
 
   Start the Docker Engine 
 
   # Order Service
-  docker build -t order ./src/order-service 
+  docker build -t order-service-image src/order-service
   docker tag order:latest $ACR_NAME.azurecr.io/order:v1
   docker push $ACR_NAME.azurecr.io/order:v1
 
   # Product Service
-  docker build -t product ./app/product-service 
+  docker build -t product-service-image src/product-service
+
   docker tag product:latest $ACR_NAME.azurecr.io/product:v1
   docker push $ACR_NAME.azurecr.io/product:v1
 
@@ -306,7 +314,66 @@ The application has the following services:
 
   docker images
 
+# Run Docker Images
 
+  1. Create a custom network
+
+      All the services are on the backend_services network
+
+      docker network create backend_services
+
+  2. Run RabbitMQ
+
+      docker run -d \
+        --name rabbitmq \
+        --restart always \
+        --network backend_services \
+        -p 15672:15672 \
+        -p 5672:5672 \
+        -e RABBITMQ_DEFAULT_USER=username \
+        -e RABBITMQ_DEFAULT_PASS=password \
+        -v $(pwd)/rabbitmq_enabled_plugins:/etc/rabbitmq/enabled_plugins \
+        rabbitmq:3.13.2-management-alpine
+
+      Note: Health checks can’t be enforced automatically like Compose, but you can 
+      check manually with:
+      
+      docker exec rabbitmq rabbitmqctl status
+
+  3. Run Order Service
+
+      Since it depends on RabbitMQ, we can wait until RabbitMQ is healthy (or just sleep a few seconds).
+
+      docker run -d \
+        --name order-service \
+        --restart always \
+        --network backend_services \
+        -p 3000:3000 \
+        -e ORDER_QUEUE_HOSTNAME=rabbitmq \
+        -e ORDER_QUEUE_PORT=5672 \
+        -e ORDER_QUEUE_USERNAME=username \
+        -e ORDER_QUEUE_PASSWORD=password \
+        -e ORDER_QUEUE_NAME=orders \
+        -e ORDER_QUEUE_RECONNECT_LIMIT=3 \
+        order-service-image      
+
+  4. Run Product Service
+      docker run -d \
+        --name product-service \
+        --restart always \
+        --network backend_services \
+        -p 3002:3002 \
+        product-service-image
+      
+  5. Run Store Front
+
+      Depends on order-service and product-service, so wait a few seconds for them to start:
+      docker run -d \
+        --name store-front \
+        --restart always \
+        --network backend_services \
+        -p 8080:8080 \
+        store-front-image
 
 # Run the app locally using Docker Compose
 
@@ -328,73 +395,7 @@ The application has the following services:
 # Run the app on Azure Kubernetes Service (AKS)
 
 
-1️⃣ Create a custom network
 
-All your services are on the backend_services network:
-
-docker network create backend_services
-
-2️⃣ Run RabbitMQ
-docker run -d \
-  --name rabbitmq \
-  --restart always \
-  --network backend_services \
-  -p 15672:15672 \
-  -p 5672:5672 \
-  -e RABBITMQ_DEFAULT_USER=username \
-  -e RABBITMQ_DEFAULT_PASS=password \
-  -v $(pwd)/rabbitmq_enabled_plugins:/etc/rabbitmq/enabled_plugins \
-  rabbitmq:3.13.2-management-alpine
-
-
-Note: Health checks can’t be enforced automatically like Compose, but you can check manually with:
-docker exec rabbitmq rabbitmqctl status
-
-3️⃣ Run Order Service
-
-Since it depends on RabbitMQ, you should wait until RabbitMQ is healthy (or just sleep a few seconds).
-
-docker run -d \
-  --name order-service \
-  --restart always \
-  --network backend_services \
-  -p 3000:3000 \
-  -e ORDER_QUEUE_HOSTNAME=rabbitmq \
-  -e ORDER_QUEUE_PORT=5672 \
-  -e ORDER_QUEUE_USERNAME=username \
-  -e ORDER_QUEUE_PASSWORD=password \
-  -e ORDER_QUEUE_NAME=orders \
-  -e ORDER_QUEUE_RECONNECT_LIMIT=3 \
-  order-service-image
-
-
-Replace order-service-image with the image name you build from src/order-service:
-
-docker build -t order-service-image src/order-service
-
-4️⃣ Run Product Service
-docker run -d \
-  --name product-service \
-  --restart always \
-  --network backend_services \
-  -p 3002:3002 \
-  product-service-image
-
-
-Build it first:
-
-docker build -t product-service-image src/product-service
-
-5️⃣ Run Store Front
-
-Depends on order-service and product-service, so wait a few seconds for them to start:
-
-docker run -d \
-  --name store-front \
-  --restart always \
-  --network backend_services \
-  -p 8080:8080 \
-  store-front-image
 
 
 Build it first:
