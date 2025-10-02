@@ -108,6 +108,7 @@ The application has the following services:
     1. Docker Engine - runs and manages containers. It Contains
         - Docker Daemon: Runs in the background, manages images, containers, networks and volumes.
         - Docker Client/CLI: Tool to interact with the daemon.
+        - REST API: Lets apps talk to Docker programmatically.
 
     2. Docker Images
         - image is a file which contains dependencies, binaries and required 
