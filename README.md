@@ -139,7 +139,7 @@ The application has the following services:
         - Better performance than storing data inside the container filesystem.
         - Backup & restore support.
 
-  ## 3 Docker files 
+  ## Docker files 
 
     Dockerfile: A text file that contains a set of instructions for building a Docker image.
 
@@ -302,21 +302,15 @@ The application has the following services:
     Start the Docker Engine 
 
     1. Order Service
-      docker build -t order-service-image src/order-service
-      docker tag order:latest $ACR_NAME.azurecr.io/order:v1
-      docker push $ACR_NAME.azurecr.io/order:v1
+       docker build -t order-service-image src/order-service
 
     2. Product Service
-      docker build -t product-service-image src/product-service
-      d ocker tag product:latest $ACR_NAME.azurecr.io/product:v1
-      docker push $ACR_NAME.azurecr.io/product:v1
+       docker build -t product-service-image src/product-service
 
     3. Store Front Service
-      docker build -t store-front-image src/store-front 
-      docker tag store-front:latest $ACR_NAME.azurecr.io/store-front:v1
-      docker push $ACR_NAME.azurecr.io/store-front:v1
+       docker build -t store-front-image src/store-front 
 
-      docker images
+       docker images
 
 # Run Docker Images
 
